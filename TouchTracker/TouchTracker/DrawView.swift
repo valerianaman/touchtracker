@@ -13,7 +13,17 @@ class DrawView: UIView{
     
     var currentLines = [NSValue:Line]()
     var finishedLines = [Line]()
-    var selectedeLineIndex: Int?
+    var selectedeLineIndex: Int?{
+        didSet{
+            if selectedeLineIndex == nil {
+                let menu = UIMenuController.shared
+                menu.setMenuVisible(false, animated: true)
+            }
+        }
+    }
+    
+    
+    override var canBecomeFirstResponder: Bool{return true}
    
     
 //    MARK: Functions
@@ -34,6 +44,7 @@ class DrawView: UIView{
         
         
     }
+    
     
     func indexOfLine(at point: CGPoint) -> Int?{
         for (index, line) in finishedLines.enumerated(){
@@ -87,6 +98,15 @@ class DrawView: UIView{
         
     }
     
+//    @objc func deleteLine(_ sender: UIMenuController){
+    func deleteLine(){
+    if let index = selectedeLineIndex{
+            finishedLines.remove(at: index)
+            selectedeLineIndex = nil
+            setNeedsDisplay()
+        }
+    }
+    
 //     MARK: Touches
     
     @objc func doubleTap(_ gestureRecognizer: UIGestureRecognizer){
@@ -101,6 +121,25 @@ class DrawView: UIView{
         
         let point = gestureRecognizer.location(in: self)
         selectedeLineIndex = indexOfLine(at: point)
+        
+        
+//        let menu = UIMenuController()
+        
+        if selectedeLineIndex != nil {
+//            becomeFirstResponder()
+            
+//            let deleteItem = UIMenuItem(title: "Delete", action: #selector(DrawView.deleteLine(_:)))
+//            menu.menuItems = [deleteItem]
+//            
+//            
+//            let targetRect = CGRect(x: point.x, y: point.y, width: 2, height: 2)
+//            menu.setTargetRect(targetRect, in: self)
+//            menu.setMenuVisible(true, animated: true)
+            deleteLine()
+            
+        }else{
+//            menu.setMenuVisible(false, animated: true)
+        }
         
         setNeedsDisplay()
         
