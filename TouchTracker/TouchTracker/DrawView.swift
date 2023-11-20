@@ -7,7 +7,7 @@
 
 import UIKit
 
-class DrawView: UIView{
+class DrawView: UIView, UIGestureRecognizerDelegate{
     
 //    MARK: Vbles
     
@@ -21,6 +21,8 @@ class DrawView: UIView{
             }
         }
     }
+    
+    var moveRecognizer: UIPanGestureRecognizer!
     
     
     override var canBecomeFirstResponder: Bool{return true}
@@ -45,6 +47,10 @@ class DrawView: UIView{
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(DrawView.longPress(_:)) )
         addGestureRecognizer(longPressRecognizer)
         
+        moveRecognizer = UIPanGestureRecognizer(target: self, action: #selector(DrawView.moveLine(_:)))
+        moveRecognizer.cancelsTouchesInView = false
+        moveRecognizer.delegate = self
+        addGestureRecognizer(moveRecognizer)
         
     }
     
@@ -110,7 +116,34 @@ class DrawView: UIView{
         }
     }
     
+    @objc func moveLine(_ gestureRecognizer: UIPanGestureRecognizer){
+
+        if let index = selectedeLineIndex{
+            if gestureRecognizer.state == .changed{
+                let translation = gestureRecognizer.translation(in: self)
+                finishedLines[index].begin.x += translation.x
+                finishedLines[index].begin.y += translation.y
+                finishedLines[index].end.x += translation.x
+                finishedLines[index].end.y += translation.y
+                
+                gestureRecognizer.setTranslation(CGPoint.zero, in: self)
+                
+                setNeedsDisplay()
+            }
+            else
+            {
+                return
+            }
+                
+        }
+
+    }
+    
 //     MARK: Touches
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer)-> Bool{
+        return true
+    }
     
     @objc func longPress(_ gestureRecognizer: UIGestureRecognizer){
         if gestureRecognizer.state == .began{
